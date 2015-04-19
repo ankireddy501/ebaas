@@ -1,0 +1,8 @@
+form .ng-valid.ng-dirty{
+    border-color:green;
+    background-color: lightgreen;
+}
+form .ng-invalid.ng-dirty{
+    border-color:pink;
+    background-color: lightpink;
+}
