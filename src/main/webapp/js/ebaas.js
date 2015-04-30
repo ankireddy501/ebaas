@@ -51,18 +51,25 @@ ebbas.controller('signupController', ['$rootScope','$scope', function($rootScope
 
     }]);
 
-ebbas.controller('addAppController',['$rootScope','$scope',function($rootScope, $scope){
+ebbas.controller('addAppController',['applicationService','$rootScope','$scope',function(service, $rootScope, $scope){
+        $scope.application = {};
         $rootScope.addApp = false;
         $scope.addApp = function(){
             $rootScope.addApp = true;
-        }
+        };
         $scope.cancel = function(){
             $rootScope.addApp = false;
-        }
+        };
         $scope.save = function(){
+            alert(JSON.stringify($scope.application));
             $rootScope.addApp = false;
+            service.createApplication(function(r, e) {
+                if (e) {
+                    alert(e);
+                }
+            }, $scope.application);
         }
-    }])
+    }]);
 ebbas.controller('listAppController',['applicationService','$scope',function(service, $scope){
     service.application( function(r, e){
         if(e){
@@ -78,7 +85,19 @@ ebbas.service('applicationService',['$http', function(http){
     var applicationsUrl = 'rest/application';
 
     this.application = function(updateStatus){
-        var promisses = http.get(applicationsUrl)
+        var promisses = http.get(applicationsUrl);
+        promisses.success(function(response){
+            console.log('sucess');
+            updateStatus(response);
+        });
+        promisses.error(function(err){
+            console.log("failure:"+err.errorText);
+            updateStatus(undefined, err);
+        });
+    };
+
+    this.createApplication = function(updateStatus, app) {
+        var promisses = http.post(applicationsUrl, app);
         promisses.success(function(response){
             console.log('sucess');
             updateStatus(response);

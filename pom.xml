@@ -89,10 +89,17 @@
               </exclusion>
           </exclusions>
       </dependency>
+
+       <dependency>
+           <groupId>org.elasticsearch</groupId>
+           <artifactId>elasticsearch</artifactId>
+           <version>${es.version}</version>
+       </dependency>
   </dependencies>
   <properties>
     <version.spring>4.0.6.RELEASE</version.spring>
     <jackson.databind-version>2.4.1</jackson.databind-version>
+    <es.version>1.5.2</es.version>
   </properties>
     <build>
         <plugins>

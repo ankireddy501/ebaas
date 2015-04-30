@@ -1,43 +1,82 @@
 package com.ebaas.controller;
 
+import com.ebaas.dao.ApplicationDAO;
 import com.ebaas.domain.Application;
-import org.springframework.ui.ModelMap;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by anki on 04-04-2015.
  */
-@RestController
+@Controller
 public class ApplicationController {
+
+    @Autowired
+    private ApplicationDAO applicationDao;
 
     @RequestMapping(value="/application", produces = "application/json", method = RequestMethod.GET)
     public @ResponseBody List<Application> getApplications(){
 
         List<Application> applications = new ArrayList<Application>();
-        Application application = new Application();
-        application.setName("webchain1");
-        application.setDescription("manages the billboard");
-        applications.add(application);
-
-        Application application1 = new Application();
-        application1.setName("webchain2");
-        application1.setDescription("manages the billboard from mobile");
-        applications.add(application1);
+        try {
+            applications = applicationDao.getApplications();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return applications;
     }
 
     @RequestMapping(value="/application/{id}", produces = "application/json" , method = RequestMethod.GET)
     public @ResponseBody Application getApplication(@PathVariable String id) {
-
-       Application application = new Application();
-       application.setName("webchain");
-       application.setDescription("manages the billboard");
-       return application;
+        Application application = null;
+        try {
+            application = applicationDao.getApplication(id);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return application;
 
     }
 
+    @RequestMapping(value = "/application", method = RequestMethod.POST)
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createApplication(@RequestBody Application application) {
+        application.setId(UUID.randomUUID().toString());
+        try {
+            applicationDao.createApplication(application);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @RequestMapping(value = "/application", method = RequestMethod.PUT)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateApplication(@RequestBody Application application) {
+        try {
+            applicationDao.updateApplication(application);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @RequestMapping(value = "/application", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void deleteApplication(@RequestBody Application application) {
+        applicationDao.deleteApplication(application);
+    }
+
+    @RequestMapping(value = "/application/{id}", method = RequestMethod.DELETE)
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void deleteApplication(@PathVariable String id) {
+        applicationDao.deleteApplication(id);
+    }
 }
