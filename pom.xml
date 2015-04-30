@@ -121,7 +121,7 @@
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <configuration>
-                    <url>http://localhost:8081/manager/text</url>
+                    <url>http://localhost:8089/manager/text</url>
                     <server>TomcatServer</server>
                     <path>/ebaas</path>
                 </configuration>
