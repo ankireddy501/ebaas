@@ -1,8 +1,21 @@
 <div class="container" style="margin-top:20px" ng-controller="listAppController">
 
-    <div class="row" ng-repeat="application in applications">
-        <div class="col-xs-6 col-sm-4">{{application.name}}</div>
-        <div class="col-xs-6 col-sm-4">{{application.description}}</div>
+    <div class="row" style="margin-left:10px;margin-bottom:15px;">
+    <button class="btn btn-danger" ng-click="add()">Add Application</button>
     </div>
+    <div class="row" ng-repeat="application in applications" style="padding-top:5px;border-top:1px solid #eee">
+        <div class="col-xs-6 col-md-3">
+            <a href="#application/{{application.id}}" class="thumbnail">
+                <img src="images/mobileapp.jpg" width="75px" height="100px"/>
+            </a>
+        </div>
+        <div class="col-xs-3 col-md-3">
+            <h3>{{application.name}}</h3>
+            <span style="border-top:1px solid #eee"><h5>{{application.description}}</h5></span>
+            <div>
+                <button class="btn btn-danger" ng-click="delete(application.id)">Delete Application</button>
+            </div>
+        </div>
 
+    </div>
 </div>

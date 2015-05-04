@@ -1,0 +1,45 @@
+<div class="container" ng-controller="appUserRegistrationController">
+
+    <div class="row" style="border-bottom:1px solid #eee">
+        <h3>User Registration Form</h3>
+    </div>
+    <div class="row" style="padding-top: 5px;">
+        <h4> The list of fields configured, for data collection during registration</h4>
+    </div>
+
+    <a href="#appUserRegistrationAdd" class="btn btn-success">Add Additional Element</a>
+    <div class="row" style="font-size: 14px;padding-top: 10px;border-bottom:1px solid #eee;color:#398439">
+        <div class="col-lg-3"><h4> NAME</h4></div>
+        <div class="col-lg-3"><h4> DATA TYPE</h4></div>
+        <div class="col-lg-3"><h4> IS MANDATORY</h4></div>
+    </div>
+    <div class="row" ng-repeat="field in fields"  style="border-bottom:1px solid #eee;padding:5px">
+        <div class="col-lg-3">{{field.name}}</div>
+        <div class="col-lg-3">{{field.type}}</div>
+        <div class="col-lg-3">{{field.mandatory}}</div>
+        <div class="col-lg-3"> <a href="#appUserRegistrationDelete" class="btn btn-danger">Delete</a></div>
+    </div>
+
+    <div class="row" style="padding-top: 5px;">
+        <h4>URL to register user</h4>
+        http://ebbas.softwareag.com/ebaas/rest/appUserRegistration
+    </div>
+
+    <div class="row" style="padding-top: 5px;">
+        setting the Header Authorization with the value {{Authorization}}
+    </div>
+
+    <div class="row" style="padding-top: 5px;">
+        <h4> The following is the sample json use for registration</h4>
+        {
+        </br>
+            &nbsp;&nbsp;"firstName" : "Anki",</br>
+            &nbsp;&nbsp;"lastName"  : "reddy",</br>
+            &nbsp;&nbsp;"email"  : "reddy.501@gmail.com",</br>
+            &nbsp;&nbsp;"password"  : "*****",</br>
+            &nbsp;&nbsp;"mobile"  : "91-9566501788"
+        </br>
+        }
+    </div>
+
+</div>

@@ -10,15 +10,15 @@ public class SecurityContextProvider {
 
     private static final Map<String, SecurityContext> securityMap = new HashMap<String, SecurityContext>();
 
-    public boolean isTokenValid(String token){
+    public static boolean isTokenValid(String token){
         return securityMap.get(token) != null? true: false ;
     }
 
-    public void addToken(String token, SecurityContext securityContext){
+    public static void addToken(String token, SecurityContext securityContext){
         securityMap.put(token,securityContext);
     }
 
-    public SecurityContext getContext(String token){
+    public static SecurityContext getContext(String token){
         return securityMap.get(token);
     }
 

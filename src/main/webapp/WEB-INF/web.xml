@@ -12,12 +12,22 @@ http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"   version="2.5">
         <servlet>
             <servlet-name>dispatcher</servlet-name>
             <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+            <load-on-startup>1</load-on-startup>
         </servlet>
+
         <servlet-mapping>
             <servlet-name>dispatcher</servlet-name>
             <url-pattern>/rest/*</url-pattern>
         </servlet-mapping>
 
+        <filter>
+            <filter-name>authenticationFilter</filter-name>
+            <filter-class>com.ebaas.filter.AuthenticationFilter</filter-class>
+        </filter>
+        <filter-mapping>
+            <filter-name>authenticationFilter</filter-name>
+            <url-pattern>/rest/*</url-pattern>
+        </filter-mapping>
 
         <welcome-file-list>
             <welcome-file>index.html</welcome-file>

@@ -1,22 +1,16 @@
-<div class="container" ng-controller="loginController">
-
-<div ng-hide="authenticated">
-    <form class="form-inline" style="padding-top:30px">
-        <div class="form-group">
-            <label class="sr-only" for="exampleInputEmail3">Email address</label>
-            <input type="email" class="form-control" id="exampleInputEmail3" placeholder="Enter email" ng-model="person.email">
+<div class="container col-lg-5 col-sm-offset-4" ng-controller="loginController">
+    <form class="form-signin" >
+        <h2 class="form-signin-heading">Please sign in</h2>
+        <label for="inputEmail" class="sr-only">Email address</label>
+        <input ng-model="user.email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input ng-model="user.password" type="password" id="inputPassword" class="form-control" placeholder="Password" required="">
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" value="remember-me"> Remember me
+            </label>
         </div>
-        <div class="form-group">
-            <label class="sr-only" for="exampleInputPassword3">Password</label>
-            <input type="password" class="form-control" id="exampleInputPassword3" placeholder="Password" ng-model="person.password">
-        </div>
-        <button type="submit" class="btn btn-success" ng-click="login()">Sign in</button>
+        <button class="btn btn-lg btn-primary btn-block" type="submit" ng-click="login()">Sign in</button>
     </form>
-    <a href="#" style="color:#ffffff" ng-click="registration()">Sign up</a>
-    <label>/</label>
-    <a href="#" style="color:#ffffff" ng-click="forgot()">Forgot password</a>
 </div>
-<div ng-show="authenticated">
-    <a href="#" style="color:#ffffff" ng-click="signout()">Sign out</a>
-</div>
-</div>
+

@@ -1,21 +1,14 @@
-<div class="container col-md-3 col-md-offset-3" ng-controller="signupController">
-    <form class="form-horizontal" style="padding-top:30px">
-        <div class="form-group">
-            <label class="sr-only" for="emailInput">Email address</label>
-            <input type="email" class="form-control" id="emailInput" placeholder="Enter email" ng-model="person.email">
-        </div>
-        <div class="form-group">
-            <label class="sr-only" for="organizationInput">Organization</label>
-            <input type="password" class="form-control" id="organizationInput" placeholder="Organization" ng-model="person.organization">
-        </div>
-        <div class="form-group">
-            <label class="sr-only" for="passwordInput">Password</label>
-            <input type="password" class="form-control" id="passwordInput" placeholder="Password" ng-model="person.password">
-        </div>
-        <div class="form-group">
-            <label class="sr-only" for="confirmPassowrdInput">Confirm Password</label>
-            <input type="password" class="form-control" id="confirmPassowrdInput" placeholder="Confirm Password" ng-model="person.confirmPassword">
-        </div>
-        <button type="submit" class="btn btn-success" ng-click="signup()">Sign up</button>
+<div class="container col-lg-5 col-sm-offset-4" ng-controller="signupController">
+    <form class="form-signup" >
+        <h2 class="form-signin-heading">Please sign up</h2>
+        <label for="inputName" class="sr-only">Name</label>
+        <input ng-model="user.name" type="text" id="inputName" class="form-control" placeholder="Name" required="" autofocus="">
+        <label for="inputEmail" class="sr-only">Email address</label>
+        <input ng-model="user.email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input ng-model="user.password" type="password" id="inputPassword" class="form-control" placeholder="Password" required="">
+        <label for="confirmtPassword" class="sr-only">Confirm Password</label>
+        <input ng-model="user.confirmPassword" type="password" id="confirmtPassword" class="form-control" placeholder="Confirm Password" required="">
+        <button class="btn btn-lg btn-primary btn-block" type="submit" style="margin-top: 10px;" ng-click="signup()">Sign up</button>
     </form>
 </div>

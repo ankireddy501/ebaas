@@ -8,83 +8,122 @@ ebbas.config(function($routeProvider) {
         }) .when('/listApp', {
             templateUrl : 'listApp.html',
             controller  : 'listAppController'
-        }). otherwise({
-            redirectTo: '/listApp'
+        }).when('/home', {
+            templateUrl : 'landing.html'
+         }).when('/signup', {
+            templateUrl : 'signup.html',
+            controller  : 'signupController'
+        }).when('/login', {
+            templateUrl : 'login.html',
+            controller  : 'loginController'
+        }).when('/application/:id', {
+            templateUrl : 'application.html',
+            controller  : 'applicationController'
+        }).when('/appUserRegistration', {
+            templateUrl : 'application/registration.html',
+            controller  : 'appUserRegistrationController'
+        }).when('/appAuth', {
+            templateUrl : 'application/authentication.html',
+            controller  : 'appAuthController'
+        }).
+        otherwise({
+            redirectTo: '/home'
         });
 });
-ebbas.controller('loginController', ['$rootScope','$scope', function($rootScope, $scope){
-            $scope.person = {};
-            $rootScope.signup = false;
-            $rootScope.addApp = false;
-            $scope.login = function(){
-                // invoke the server call for authentication
-                $rootScope.authenticated=true;
-            }
-            $scope.forgot = function(){
-                alert("user clicked on forgot");
-            }
+ebbas.controller('appAuthController', ['$rootScope','$scope', function($rootScope, $scope){
 
-            $scope.registration = function(){
-                $rootScope.signup = true;
-            }
-            $scope.signout = function(){
-                $rootScope.authenticated=false;
-            }
 
-    }]);
-ebbas.controller('signupController', ['$rootScope','$scope', function($rootScope, $scope){
-        $scope.person = {};
-        $scope.signup = function(){
-            $rootScope.signup = false;
-            alert($scope.organization);
-            // invoke the server call for signup
-            $rootScope.authenticated=true;
+}]);
+ebbas.controller('appUserRegistrationController', ['$rootScope','$scope', function($rootScope, $scope){
+    $scope.fields = [
+                     {name:"firstName",type:'String',mandatory:'true'},
+                     {name:"lastName",type:'String',mandatory:'true'},
+                     {name:"userName",type:'String',mandatory:'true'},
+                     {name:"email", type:'email',mandatory:'true'},
+                     {name:"mobile",type:'mobile',mandatory:'true'}
+                    ];
+
+}]);
+ebbas.controller('loginController', ['userService','$rootScope','$scope', '$location', function(service, $rootScope, $scope,$location){
+    $scope.user = {};
+    $scope.isAuthenticated = function(){
+        if($rootScope.Authorization){
+            return true;
         }
-        $scope.forgot = function(){
-            alert("user clicked on forgot");
-        }
+        return false;
 
-        $scope.registration = function(){
-            alert("user clicked on registration");
-        }
+    }
+    $scope.login = function(){
+        service.authenticate(function(r, e) {
+            if (e) {
+                alert(e);
+            }
+            $rootScope.Authorization = r;
+            $location.path('listApp');
+        }, $scope.user);
+    }
 
+}]);
+ebbas.controller('signupController', ['userService','$rootScope','$scope','$location', function(service, $rootScope, $scope,$location){
+    $scope.user = {};
+    $scope.signup = function(){
+        service.createUser(function(r, e) {
+            if (e) {
+                alert(e);
+            }
+            $rootScope.Authorization = r;
+            $location.path('listApp');
+        }, $scope.user);
+    }
+}]);
 
-    }]);
-
-ebbas.controller('addAppController',['applicationService','$rootScope','$scope',function(service, $rootScope, $scope){
+ebbas.controller('addAppController',['applicationService','$rootScope','$scope','$location', function(service, $rootScope, $scope, $location){
         $scope.application = {};
-        $rootScope.addApp = false;
-        $scope.addApp = function(){
-            $rootScope.addApp = true;
-        };
         $scope.cancel = function(){
-            $rootScope.addApp = false;
+            $location.path('listApp');
         };
         $scope.save = function(){
-            alert(JSON.stringify($scope.application));
             $rootScope.addApp = false;
             service.createApplication(function(r, e) {
                 if (e) {
                     alert(e);
                 }
+                $location.path('listApp');
             }, $scope.application);
         }
-    }]);
-ebbas.controller('listAppController',['applicationService','$scope',function(service, $scope){
-    service.application( function(r, e){
+}]);
+ebbas.controller('applicationController',['applicationService','$rootScope','$scope',function(service, $rootScope, $scope){
+    $scope.application = {id:"dummy", name:'billboard application', description:'Place for finding the ad space'};
+}]);
+
+ebbas.controller('listAppController',['applicationService','$rootScope','$scope','$location',function(service, $rootScope, $scope, $location){
+     service.application( function(r, e){
         if(e){
             alert(" Failed to get the applications")
         }else{
             $scope.applications = r;
         }
     });
+    $scope.add = function(){
+        $location.path('addApp');
+    }
+    $scope.delete = function(applicationId){
+        service.deleteApplication(function(r, e) {
+            if (e) {
+                alert(e);
+            }
+        },applicationId);
+    }
+
 }]);
 
-ebbas.service('applicationService',['$http', function(http){
+ebbas.service('applicationService',['$rootScope', '$http', function($rootScope, http){
 
-    var applicationsUrl = 'rest/application';
+   var applicationsUrl = 'rest/application';
 
     this.application = function(updateStatus){
+        alert("get the applications");
+        http.defaults.headers.common.Authorization = $rootScope.Authorization;
         var promisses = http.get(applicationsUrl);
         promisses.success(function(response){
             console.log('sucess');
@@ -97,6 +136,7 @@ ebbas.service('applicationService',['$http', function(http){
     };
 
     this.createApplication = function(updateStatus, app) {
+        http.defaults.headers.common.Authorization = $rootScope.Authorization;
         var promisses = http.post(applicationsUrl, app);
         promisses.success(function(response){
             console.log('sucess');
@@ -109,3 +149,35 @@ ebbas.service('applicationService',['$http', function(http){
     };
 
 }]);
+
+ebbas.service('userService',['$http', function(http){
+
+    this.createUser = function(updateStatus, person){
+        var userUrl = 'rest/person';
+        var promisses = http.post(userUrl, person);
+        promisses.success(function(data, status, headers, config){
+            $("#login").hide();
+            $("#signup").hide();
+            $("#signout").show();
+            updateStatus(data.Authorization);
+        });
+        promisses.error(function(err){
+            updateStatus(undefined,err)
+        });
+    }
+
+    this.authenticate = function(updateStatus, person){
+        var authenticateUrl = 'rest/person';
+        authenticateUrl = authenticateUrl + '/' + person.email+ '/'+ person.password
+        var promisses = http.post(authenticateUrl, person);
+        promisses.success(function(data, status, headers, config){
+            $("#login").hide();
+            $("#signup").hide();
+            $("#signout").show();
+            updateStatus(data.Authorization);
+        });
+        promisses.error(function(err){
+            updateStatus(undefined,err)
+        });
+    }
+}])

@@ -1,19 +1,16 @@
 package com.ebaas.dao;
 
 import com.ebaas.domain.Application;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,9 +29,12 @@ public class ApplicationDAO {
         client = baseDAO.getClient();
     }
 
-    public List<Application> getApplications() throws IOException {
+    public List<Application> getApplications(String tenantId) throws IOException {
         List<Application> applications = new ArrayList<Application>();
-        SearchResponse response = client.prepareSearch("ebaas").setTypes("application").execute().actionGet();
+        SearchResponse response = client.prepareSearch("ebaas").setTypes("application").
+                setQuery(QueryBuilders.matchQuery("tenantId",tenantId))
+                .execute().actionGet();
+
         for (SearchHit hit : response.getHits().hits()) {
             applications.add(mapper.readValue(hit.source(), Application.class));
         }

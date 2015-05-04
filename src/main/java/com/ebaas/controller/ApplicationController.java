@@ -1,5 +1,7 @@
 package com.ebaas.controller;
 
+import com.ebaas.SecurityContext;
+import com.ebaas.SecurityContextThreadLocal;
 import com.ebaas.dao.ApplicationDAO;
 import com.ebaas.domain.Application;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,7 +29,17 @@ public class ApplicationController {
 
         List<Application> applications = new ArrayList<Application>();
         try {
-            applications = applicationDao.getApplications();
+            SecurityContext context = SecurityContextThreadLocal.get();
+            String tenantId = context.getTenantId();
+            System.out.println("tenantId:"+tenantId);
+            applications = applicationDao.getApplications(tenantId);
+            if(applications.size() == 0){
+                Application dummy = new Application();
+                dummy.setId("Dummy");
+                dummy.setName("Billboad India");
+                dummy.setDescription("Place for finding the ad space");
+                applications.add(dummy);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,6 +64,9 @@ public class ApplicationController {
     public void createApplication(@RequestBody Application application) {
         application.setId(UUID.randomUUID().toString());
         try {
+            SecurityContext context = SecurityContextThreadLocal.get();
+            String tenantId = context.getTenantId();
+            application.setTenantId(tenantId);
             applicationDao.createApplication(application);
         } catch (JsonProcessingException e) {
             e.printStackTrace();

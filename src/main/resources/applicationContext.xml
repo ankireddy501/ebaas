@@ -9,6 +9,14 @@
         <constructor-arg ref="baseDao" />
     </bean>
 
+    <bean id="personDao" class="com.ebaas.dao.PersonDAO">
+        <constructor-arg ref="baseDao" />
+    </bean>
+
+    <bean id="userOnboardingDao" class="com.ebaas.dao.UserOnboardingDAO">
+        <constructor-arg ref="baseDao" />
+    </bean>
+
     <bean id="baseDao" class="com.ebaas.dao.BaseDAO">
         <constructor-arg value="localhost" />
         <constructor-arg value="9300" />

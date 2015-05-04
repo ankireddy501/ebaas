@@ -48,11 +48,23 @@ public class Application implements Serializable{
         this.apis = apis;
     }
 
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    private String tenantId;
+
     private String id;
 
     private String name;
 
     private String description;
+
+
 
     private String owner;
 
