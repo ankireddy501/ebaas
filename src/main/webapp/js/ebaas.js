@@ -36,11 +36,12 @@ ebbas.controller('appAuthController', ['$rootScope','$scope', function($rootScop
 }]);
 ebbas.controller('appUserRegistrationController', ['$rootScope','$scope', function($rootScope, $scope){
     $scope.fields = [
-                     {name:"firstName",type:'String',mandatory:'true'},
-                     {name:"lastName",type:'String',mandatory:'true'},
+                     {name:"firstName",type:'String',mandatory:'false'},
+                     {name:"lastName",type:'String',mandatory:'false'},
                      {name:"userName",type:'String',mandatory:'true'},
                      {name:"email", type:'email',mandatory:'true'},
-                     {name:"mobile",type:'mobile',mandatory:'true'}
+                     {name:"mobile",type:'mobile',mandatory:'false'},
+                     {name:"password",type:'passowrd',mandatory:'true'}
                     ];
 
 }]);
@@ -122,7 +123,6 @@ ebbas.service('applicationService',['$rootScope', '$http', function($rootScope, 
    var applicationsUrl = 'rest/application';
 
     this.application = function(updateStatus){
-        alert("get the applications");
         http.defaults.headers.common.Authorization = $rootScope.Authorization;
         var promisses = http.get(applicationsUrl);
         promisses.success(function(response){

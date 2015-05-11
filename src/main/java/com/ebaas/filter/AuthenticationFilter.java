@@ -25,9 +25,15 @@ public class AuthenticationFilter implements Filter{
 
         SecurityContextProvider securityContextProvider = null;
         String token = (String)((HttpServletRequest)servletRequest).getHeader("Authorization");
+        String apiToken = (String)((HttpServletRequest)servletRequest).getHeader("apiKey");
         if(token != null){
             System.out.println("token:"+token);
             SecurityContext securityContext = securityContextProvider.getContext(token);
+            SecurityContextThreadLocal.set(securityContext);
+        }
+        if(apiToken != null){
+            System.out.println("apiToken:"+apiToken);
+            SecurityContext securityContext = securityContextProvider.getContext(apiToken);
             SecurityContextThreadLocal.set(securityContext);
         }
         filterChain.doFilter(servletRequest, servletResponse);

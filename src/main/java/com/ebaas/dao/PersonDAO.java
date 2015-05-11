@@ -62,4 +62,35 @@ public class PersonDAO {
 
         return person;
     }
+
+    public boolean authenticate(String tenantId, String userName,String password) throws IOException{
+
+        Person person = null;
+        MatchQueryBuilder userNameMatch = QueryBuilders.matchQuery("email", userName);
+        MatchQueryBuilder passwordMatch = QueryBuilders.matchQuery("password", password);
+
+        SearchRequestBuilder srb1 = client
+                .prepareSearch("ebaas"+tenantId.toLowerCase()).setQuery(userNameMatch).setSize(1);
+        SearchRequestBuilder srb2 = client
+                .prepareSearch("ebaas"+tenantId.toLowerCase()).setQuery(passwordMatch).setSize(1);
+
+        MultiSearchResponse sr = client.prepareMultiSearch()
+                .add(srb1)
+                .add(srb2)
+                .execute().actionGet();
+
+        long nbHits = 0;
+        for (MultiSearchResponse.Item item : sr.getResponses()) {
+            SearchResponse response = item.getResponse();
+            SearchHit searchHit = response.getHits().getAt(0);
+            System.out.println("searchHit:"+searchHit.getSourceAsString());
+            nbHits = 1;
+        }
+        if(nbHits > 0){
+            return true;
+        }else{
+            return false;
+        }
+
+    }
 }

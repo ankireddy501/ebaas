@@ -1,26 +1,46 @@
-<div class="container" ng-controller="appAuthController">
+<div class="container-fluid">
     <div class="row">
-        <h3>Please select the field which you consider for User Name</h3>
-            <div class="row" style="font-size: 14px;padding-top: 10px;border-bottom:1px solid #eee;color:#398439">
-                <div class="col-lg-3"><h4> USERNAME </h4></div>
+        <div class="col-sm-3 col-md-2 sidebar">
+            <ul class="nav nav-sidebar">
+                <li><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+                <li><a href="#appAuth">Authentication</a></li>
+                <li><a href="#appUserRegistration">User Onboarding</a></li>
+                <li><a href="#appLogging" class="active">Logging</a></li>
+            </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-9 col-md-offset-1 main">
+            <div class="container" ng-controller="appAuthController">
+                <div class="row">
+                    <h3>Please select the field which you consider for User Name</h3>
+                    <div class="row" style="font-size: 14px;padding-top: 10px;border-bottom:1px solid #eee;color:#398439">
+                        <div class="col-lg-3"><h4> USERNAME </h4></div>
+                    </div>
+                    <div class="row" style="border-bottom:1px solid #eee;padding:5px">
+                        <div class="col-lg-3">email</div>
+                        <div class="col-lg-3"><input type="checkbox" name="email" checked="checked"/></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <h3>Please select the field which you consider for Password</h3>
+                    <div class="row" style="font-size: 14px;padding-top: 10px;border-bottom:1px solid #eee;color:#398439">
+                        <div class="col-lg-3"><h4> PASSWORD </h4></div>
+                    </div>
+                    <div class="row" style="border-bottom:1px solid #eee;padding:5px">
+                        <div class="col-lg-3">password</div>
+                        <div class="col-lg-3"><input type="checkbox" name="password" checked="checked"/></div>
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 5px;">
+                    <h4>URL to authenticate user</h4>
+                    http://localhost:8080/ebaas/rest/appUserAuth
+                </div>
+                <div class="row">
+                    <h3>apiKey : {{Authorization}}</h3>
+                    <h3> To authorize user, please pass the selected username and password fields values as Basic Authentication</h3>
+                    <h4> Authorization : Basic Base64Encoding(email + ":"+ password)</h4>
+                </div>
             </div>
-            <div class="row" ng-repeat="field in fields"  style="border-bottom:1px solid #eee;padding:5px">
-                <div class="col-lg-3">email</div>
-                <div class="col-lg-3"><input type="checkbox" name="email" checked="checked"/></div>
-            </div>
-    </div>
-    <div class="row">
-        <h3>Please select the field which you consider for Password</h3>
-            <div class="row" style="font-size: 14px;padding-top: 10px;border-bottom:1px solid #eee;color:#398439">
-                <div class="col-lg-3"><h4> PASSWORD </h4></div>
-            </div>
-            <div class="row" ng-repeat="field in fields"  style="border-bottom:1px solid #eee;padding:5px">
-                <div class="col-lg-3">password</div>
-                <div class="col-lg-3"><input type="checkbox" name="password" checked="checked"/></div>
-            </div>
-    </div>
-    <div class="row">
-        <h3> To authorize user, please pass the selected username and password fields values as Basic Authentication</h3>
-        <h4> Authorization : Basic Base64Encoding(email + ":"+ password)</h4>
+        </div>
     </div>
 </div>
+
