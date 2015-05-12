@@ -1,6 +1,7 @@
 package com.ebaas.dao;
 
 import com.ebaas.domain.Person;
+import com.ebaas.util.RESTClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.elasticsearch.action.index.IndexResponse;
@@ -13,6 +14,12 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 
 import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Created by anki on 04-04-2015.
@@ -20,77 +27,101 @@ import java.io.IOException;
 public class PersonDAO {
 
     private BaseDAO baseDAO;
-    private Client client;
+    private RESTClient client;
+    private URI uri;
 
     private ObjectMapper mapper = new ObjectMapper();
 
+    private Logger logger = Logger.getLogger("PersonDAO");
+
     public PersonDAO(BaseDAO baseDAO){
-            this.baseDAO = baseDAO;
-            this.client = baseDAO.getClient();
+        this.uri = baseDAO.getUri();
+        this.baseDAO = baseDAO;
+        this.client = baseDAO.getClient();
     }
 
     public boolean createPerson(Person person) throws JsonProcessingException {
-        IndexResponse response = client.prepareIndex("ebaas", "person", person.getId())
-                .setSource(mapper.writeValueAsBytes(person))
-                .execute().actionGet();
+        RESTClient.Response response = client.post(createUri(), mapper.writeValueAsString(person));
         return response.isCreated();
     }
 
     public Person authenticate(String userName,String password) throws IOException{
 
         Person person = null;
-        MatchQueryBuilder userNameMatch = QueryBuilders.matchQuery("email", userName);
-        MatchQueryBuilder passwordMatch = QueryBuilders.matchQuery("password", password);
 
-        SearchRequestBuilder srb1 = client
-                .prepareSearch().setQuery(userNameMatch).setSize(1);
-        SearchRequestBuilder srb2 = client
-                .prepareSearch().setQuery(passwordMatch).setSize(1);
+        String query = "{\n" +
+                "\"query\":{\n" +
+                "\t  \"bool\": {\n" +
+                "\t\t\"must\": [\n" +
+                "\t\t  { \"match\": { \"email\": \"" + userName + "\" }},\n" +
+                "\t\t  { \"match\": { \"password\": \"" + password + "\" }}\n" +
+                "\t\t]\n" +
+                "\t  }\n" +
+                "\t}\n" +
+                "}";
 
-        MultiSearchResponse sr = client.prepareMultiSearch()
-                .add(srb1)
-                .add(srb2)
-                .execute().actionGet();
+        logger.info(query);
 
-        long nbHits = 0;
-        for (MultiSearchResponse.Item item : sr.getResponses()) {
-            SearchResponse response = item.getResponse();
-            SearchHit searchHit = response.getHits().getAt(0);
-            System.out.println("searchHit:"+searchHit.getSourceAsString());
-            person = (Person) mapper.readValue(searchHit.getSourceAsString().getBytes(), Person.class);
+        RESTClient.Response response = client.post(createSerachURI(), query);
+
+        logger.info(response.getBody());
+
+        for (RESTClient.SearchHit searchHit : response.getSearchHits()) {
+            person = mapper.readValue(searchHit.getEntry("_source"), Person.class);
         }
 
         return person;
     }
 
-    public boolean authenticate(String tenantId, String userName,String password) throws IOException{
+    public Person authenticate(String tenantId, String userName,String password) throws IOException{
 
         Person person = null;
-        MatchQueryBuilder userNameMatch = QueryBuilders.matchQuery("email", userName);
-        MatchQueryBuilder passwordMatch = QueryBuilders.matchQuery("password", password);
 
-        SearchRequestBuilder srb1 = client
-                .prepareSearch("ebaas"+tenantId.toLowerCase()).setQuery(userNameMatch).setSize(1);
-        SearchRequestBuilder srb2 = client
-                .prepareSearch("ebaas"+tenantId.toLowerCase()).setQuery(passwordMatch).setSize(1);
+        String query = "{\n" +
+                "\"query\":{\n" +
+                "\t  \"bool\": {\n" +
+                "\t\t\"must\": [\n" +
+                "\t\t  { \"match\": { \"email\": \"" + userName + "\" }},\n" +
+                "\t\t  { \"match\": { \"password\": \"" + password + "\" }}\n" +
+                "\t\t]\n" +
+                "\t  }\n" +
+                "\t}\n" +
+                "}";
 
-        MultiSearchResponse sr = client.prepareMultiSearch()
-                .add(srb1)
-                .add(srb2)
-                .execute().actionGet();
+        logger.info(query);
 
-        long nbHits = 0;
-        for (MultiSearchResponse.Item item : sr.getResponses()) {
-            SearchResponse response = item.getResponse();
-            SearchHit searchHit = response.getHits().getAt(0);
-            System.out.println("searchHit:"+searchHit.getSourceAsString());
-            nbHits = 1;
-        }
-        if(nbHits > 0){
-            return true;
-        }else{
-            return false;
+        RESTClient.Response response = client.post(createSerachURI(tenantId), query);
+
+        logger.info(response.getBody());
+
+        for (RESTClient.SearchHit searchHit : response.getSearchHits()) {
+            person = mapper.readValue(searchHit.getEntry("_source"), Person.class);
         }
 
+        return person;
+    }
+
+    private URI createUri() {
+        return URI.create(uri.toString() +  "/ebaas" + "/person");
+    }
+
+    private URI createSerachURI() {
+        return URI.create(createUri().toString() + "/_search");
+    }
+
+    private URI createUri(String id) {
+        return URI.create(createUri().toString() + "/" + id);
+    }
+
+    private URI createUriWithTenant(String tenantId) {
+        return URI.create(uri.toString() +  "/ebaas" + tenantId.toLowerCase() + "/person");
+    }
+
+    private URI createSerachURI(String tenantId) {
+        return URI.create(createUriWithTenant(tenantId).toString() + "/_search");
+    }
+
+    private URI createUri(String tenantId, String id) {
+        return URI.create(createUriWithTenant(tenantId).toString() + "/" + id);
     }
 }
