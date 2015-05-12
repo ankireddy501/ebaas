@@ -5,7 +5,7 @@
   <artifactId>EBAAS</artifactId>
   <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>EBAAS</name>
+  <name>ebaas</name>
   <url>http://maven.apache.org</url>
 
    <dependencies>
@@ -102,7 +102,6 @@
            <version>2.5</version>
            <scope>provided</scope>
        </dependency>
-
 
    </dependencies>
   <properties>
