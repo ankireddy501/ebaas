@@ -22,10 +22,12 @@ public class AuthenticationFilter implements Filter{
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-
+		System.out.println("---------------------------------------------------------1");
         SecurityContextProvider securityContextProvider = null;
         String token = (String)((HttpServletRequest)servletRequest).getHeader("Authorization");
         String apiToken = (String)((HttpServletRequest)servletRequest).getHeader("apiKey");
+		System.out.println("token:"+token);
+		System.out.println("apiToken:"+apiToken);
         if(token != null){
             System.out.println("token:"+token);
             SecurityContext securityContext = securityContextProvider.getContext(token);
