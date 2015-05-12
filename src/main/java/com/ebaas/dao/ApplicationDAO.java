@@ -1,73 +1,98 @@
 package com.ebaas.dao;
 
 import com.ebaas.domain.Application;
+import com.ebaas.util.RESTClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.elasticsearch.action.delete.DeleteResponse;
-import org.elasticsearch.action.get.GetResponse;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.update.UpdateResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 
+import java.net.URI;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Created by anki on 04-04-2015.
  */
 public class ApplicationDAO {
 
-    private Client client;
+    private RESTClient client;
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private URI uri;
+
+    private ObjectMapper mapper;
+
+    private Logger logger = Logger.getLogger("ApplicationDAO");
 
     public ApplicationDAO(BaseDAO baseDAO) {
+        uri = baseDAO.getUri();
         client = baseDAO.getClient();
+        mapper = new ObjectMapper();
     }
 
     public List<Application> getApplications(String tenantId) throws IOException {
         List<Application> applications = new ArrayList<Application>();
-        SearchResponse response = client.prepareSearch("ebaas").setTypes("application").
-                setQuery(QueryBuilders.matchQuery("tenantId",tenantId))
-                .execute().actionGet();
+        Map condition = new HashMap();
+        condition.put("tenantId",tenantId);
 
-        for (SearchHit hit : response.getHits().hits()) {
-            applications.add(mapper.readValue(hit.source(), Application.class));
+        Map match = new HashMap();
+        match.put("match", condition);
+
+        Map query = new HashMap();
+        query.put("query", match);
+
+        logger.info(mapper.writeValueAsString(query));
+
+        RESTClient.Response response = client.post(createSerachURI(), mapper.writeValueAsString(query));
+
+        logger.info(response.getBody());
+
+        for (RESTClient.SearchHit hit : response.getSearchHits()) {
+            applications.add(mapper.readValue(hit.getEntry("_source"), Application.class));
         }
         return applications;
     }
 
     public Application getApplication(String id) throws IOException {
-        GetResponse response = client.prepareGet("ebaas", "application", id).execute().actionGet();
-        return mapper.readValue(response.getSourceAsBytes(), Application.class);
+        RESTClient.Response response = client.get(createUri(id));
+        return mapper.readValue(response.getSource(), Application.class);
     }
 
     public boolean createApplication(Application application) throws JsonProcessingException {
-        IndexResponse response = client.prepareIndex("ebaas", "application", application.getId())
-                .setSource(mapper.writeValueAsBytes(application))
-                .execute().actionGet();
+        logger.info(createUri(application.getId()).toString());
+        logger.info(mapper.writeValueAsString(application));
+        RESTClient.Response response = client.post(createUri(application.getId()),
+                mapper.writeValueAsString(application));
         return response.isCreated();
     }
 
     public boolean updateApplication(Application application) throws JsonProcessingException {
-        UpdateResponse response = client.prepareUpdate("ebaas", "application", application.getId())
-                .setDoc(mapper.writeValueAsBytes(application)).execute().actionGet();
-        return response.isCreated();
+        RESTClient.StatusCode code = client.put(createUri(application.getId()),
+                mapper.writeValueAsString(application));
+        return true;
     }
 
     public boolean deleteApplication(Application application) {
-        DeleteResponse response = client.prepareDelete("ebaas", "application", application.getId())
-                .execute().actionGet();
-        return response.isFound();
+        deleteApplication(application.getId());
+        return true;
     }
 
     public boolean deleteApplication(String id) {
-        DeleteResponse response = client.prepareDelete("ebaas", "application", id)
-                .execute().actionGet();
-        return response.isFound();
+        RESTClient.StatusCode code = client.delete(createUri(id));
+        return true;
+    }
+
+    private URI createUri() {
+        return URI.create(uri.toString() +  "/ebaas" + "/application");
+    }
+
+    private URI createSerachURI() {
+        return URI.create(createUri().toString() + "/_search");
+    }
+
+    private URI createUri(String id) {
+        return URI.create(createUri().toString() + "/" + id);
     }
 }

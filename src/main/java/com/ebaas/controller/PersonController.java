@@ -29,7 +29,7 @@ public class PersonController {
             person.setTenantId(tenantId);
             boolean isCreated = personDAO.createPerson(person);
             if(isCreated){
-                return authenticatePerson(person.getEmail(),person.getPassword());
+                return authenticate(person);
             }
         } catch (JsonProcessingException e) {
             throw new Exception("Failed to create the user");
@@ -43,6 +43,10 @@ public class PersonController {
         if(person == null){
             throw new Exception("Invalid Credentials");
         }
+        return authenticate(person);
+    }
+
+    private String authenticate(Person person) {
         String token = UUID.randomUUID().toString().toLowerCase();
         SecurityContext securityContext = new SecurityContext();
         securityContext.setTenantId(person.getTenantId());

@@ -19,7 +19,7 @@
 
     <bean id="baseDao" class="com.ebaas.dao.BaseDAO">
         <constructor-arg value="localhost" />
-        <constructor-arg value="9300" />
+        <constructor-arg value="9200" />
     </bean>
 
 </beans>

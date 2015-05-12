@@ -3,6 +3,7 @@ package com.ebaas.controller;
 import com.ebaas.SecurityContext;
 import com.ebaas.SecurityContextThreadLocal;
 import com.ebaas.dao.PersonDAO;
+import com.ebaas.domain.Person;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -33,8 +34,8 @@ public class AppUserAuthController {
         String decodedAuth = new String(base64Decoder.decodeBuffer(base64Auth));
         System.out.println("decoded string:"+decodedAuth);
         String[] credentials = decodedAuth.split(":");
-        boolean isAuthenticated = personDAO.authenticate(tenantId, credentials[0], credentials[1]);
-        if(!isAuthenticated){
+        Person person = personDAO.authenticate(tenantId, credentials[0], credentials[1]);
+        if(person != null){
             throw new Exception("Invalid Credentials");
         }
         String token = UUID.randomUUID().toString().toLowerCase();
