@@ -4,21 +4,9 @@ import com.ebaas.domain.Person;
 import com.ebaas.util.RESTClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.search.MultiSearchResponse;
-import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -92,10 +80,14 @@ public class PersonDAO {
 
         RESTClient.Response response = client.post(createSerachURI(tenantId), query);
 
-        logger.info(response.getBody());
+        logger.info("query response:"+response.getBody());
 
-        for (RESTClient.SearchHit searchHit : response.getSearchHits()) {
-            person = mapper.readValue(searchHit.getEntry("_source"), Person.class);
+        try{
+            for (RESTClient.SearchHit searchHit : response.getSearchHits()) {
+                person = mapper.readValue(searchHit.getEntry("_source"), Person.class);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
         }
 
         return person;
