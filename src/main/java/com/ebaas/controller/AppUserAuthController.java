@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import sun.misc.BASE64Decoder;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.UUID;
 
 /**
@@ -23,7 +26,7 @@ public class AppUserAuthController {
     private PersonDAO personDAO;
 
     @RequestMapping(value="/appUserAuth", produces = "application/json", method = RequestMethod.POST)
-    public @ResponseBody String authenticatePerson(@RequestHeader(value="Authorization") String authorizationHeader) throws Exception {
+    public @ResponseBody String authenticatePerson(@RequestHeader(value="Authorization") String authorizationHeader, HttpServletRequest request, HttpServletResponse response) throws Exception {
         System.out.println("authorizationHeader:"+authorizationHeader);
         SecurityContext context = SecurityContextThreadLocal.get();
         String tenantId = context.getTenantId();
@@ -35,10 +38,12 @@ public class AppUserAuthController {
         System.out.println("decoded string:"+decodedAuth);
         String[] credentials = decodedAuth.split(":");
         Person person = personDAO.authenticate(tenantId, credentials[0], credentials[1]);
-        if(person != null){
-            throw new Exception("Invalid Credentials");
+        if(person == null){
+            System.out.println("could not found user");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Credentials");
         }
         String token = UUID.randomUUID().toString().toLowerCase();
+        System.out.println("{" +"\""+"Authorization"+"\""+":"+"\""+token+"\""+"}");
         return "{" +"\""+"Authorization"+"\""+":"+"\""+token+"\""+"}";
     }
 }
